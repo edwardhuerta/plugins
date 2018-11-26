@@ -202,7 +202,7 @@ public class CameraPlugin implements MethodCallHandler {
                 break;
             }
             case "takePicture": {
-                camera.takePicture((String) call.argument("path"), result);
+                camera.takePicture((String) call.argument("path"), (String) call.argument("flashType"), result);
                 break;
             }
             case "startVideoRecording": {
@@ -290,7 +290,7 @@ public class CameraPlugin implements MethodCallHandler {
         private Size videoSize;
         private MediaRecorder mediaRecorder;
         private boolean recordingVideo;
-        private int mCurrentZoomLevel = 1;
+        private int currentZoomLevel = 1;
         private Rect zoomRect;
 
 
@@ -595,7 +595,7 @@ public class CameraPlugin implements MethodCallHandler {
             }
         };
 
-        private void takePicture(String filePath, @NonNull final Result result) {
+        private void takePicture(String filePath, String flashType, @NonNull final Result result) {
             final File file = new File(filePath);
 
             if (file.exists()) {
@@ -631,6 +631,7 @@ public class CameraPlugin implements MethodCallHandler {
                 captureBuilder.set(
                         CaptureRequest.JPEG_ORIENTATION, (-displayOrientation + sensorOrientation) % 360);
                 captureBuilder.set(CaptureRequest.SCALER_CROP_REGION, zoomRect);
+                setAutoFlash(captureBuilder, flashType);
 
                 cameraCaptureSession.capture(
                         captureBuilder.build(), captureCallbackListener, null);
@@ -775,7 +776,7 @@ public class CameraPlugin implements MethodCallHandler {
                 } catch (Exception e) {
                     Log.e(TAG, "Error updating preview: ", e);
                 }
-                mCurrentZoomLevel = (int) zoomLevel;
+                currentZoomLevel = (int) zoomLevel;
             }
         }
 
@@ -810,6 +811,39 @@ public class CameraPlugin implements MethodCallHandler {
             } catch (Exception e) {
                 Log.e(TAG, "Error during camera init");
                 return -1;
+            }
+        }
+
+        private boolean isFlashSupported() throws CameraAccessException {
+            boolean flashSupported;
+            // Check if the flash is supported.
+            Boolean available = cameraManager.getCameraCharacteristics(cameraName).get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
+            flashSupported = available == null ? false : available;
+            return flashSupported;
+        }
+
+        private void setAutoFlash(CaptureRequest.Builder requestBuilder, String flashType) throws CameraAccessException {
+            if (isFlashSupported()) {
+                switch (flashType) {
+                    case "FLASH_MODE_ON":
+                        requestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
+                        requestBuilder.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_SINGLE);
+                        break;
+
+                    case "FLASH_MODE_OFF":
+                        requestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
+                        requestBuilder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_OFF);
+                        break;
+
+                    case "FLASH_MODE_AUTO":
+                        requestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
+                        requestBuilder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_SINGLE);
+                        break;
+                    default:
+                        requestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
+                        requestBuilder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_SINGLE);
+                        break;
+                }
             }
         }
 

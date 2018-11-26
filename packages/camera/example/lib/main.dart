@@ -33,6 +33,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
   CameraController controller;
   String imagePath;
   String videoPath;
+  String flashType = "FLASH_MODE_AUTO";
   VideoPlayerController videoController;
   VoidCallback videoPlayerListener;
 
@@ -85,6 +86,18 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
             ),
           ),
           _captureControlRowWidget(),
+          RaisedButton(
+            onPressed: () {flashType = "FLASH_MODE_ON";},
+            child: Text("On"),
+          ),
+          RaisedButton(
+            onPressed: () {flashType = "FLASH_MODE_OFF";},
+            child: Text("Off"),
+          ),
+          RaisedButton(
+            onPressed: () {flashType = "FLASH_MODE_AUTO";},
+            child: Text("Auto"),
+          ),
           Padding(
             padding: const EdgeInsets.all(5.0),
             child: Row(
@@ -349,7 +362,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
     }
 
     try {
-      await controller.takePicture(filePath);
+      await controller.takePicture(filePath, flashType);
     } on CameraException catch (e) {
       _showCameraException(e);
       return null;
