@@ -36,6 +36,16 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
   VideoPlayerController videoController;
   VoidCallback videoPlayerListener;
 
+  double _value = 0.0;
+
+  void onZoomChanged(double value) {
+    _value = value;
+    controller.zoomByFactor(value);
+    setState(() {
+
+    });
+  }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -48,22 +58,27 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
       body: Column(
         children: <Widget>[
           Expanded(
-            child: Container(
-              child: Padding(
-                padding: const EdgeInsets.all(1.0),
-                child: Center(
-                  child: _cameraPreviewWidget(),
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  child: Padding(
+                    padding: const EdgeInsets.all(1.0),
+                    child: Center(
+                      child: _cameraPreviewWidget(),
+                    ),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    border: Border.all(
+                      color: controller != null && controller.value.isRecordingVideo
+                          ? Colors.redAccent
+                          : Colors.grey,
+                      width: 3.0,
+                    ),
+                  ),
                 ),
-              ),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(
-                  color: controller != null && controller.value.isRecordingVideo
-                      ? Colors.redAccent
-                      : Colors.grey,
-                  width: 3.0,
-                ),
-              ),
+                Slider(value: _value, onChanged: onZoomChanged, min: 1.0, max: 5.0)
+              ],
             ),
           ),
           _captureControlRowWidget(),

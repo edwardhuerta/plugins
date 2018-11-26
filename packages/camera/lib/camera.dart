@@ -310,6 +310,18 @@ class CameraController extends ValueNotifier<CameraValue> {
     }
   }
 
+  Future<void> zoomByFactor(double zF) async {
+    try {
+      await _channel.invokeMethod(
+        'zoomByFactor',
+        <String, dynamic>{'zF': zF},
+      );
+    } on PlatformException catch (e) {
+      throw CameraException(e.code, e.message);
+    }
+
+  }
+
   /// Stop recording.
   Future<void> stopVideoRecording() async {
     if (!value.isInitialized || _isDisposed) {
