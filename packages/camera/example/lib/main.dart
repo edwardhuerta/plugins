@@ -41,9 +41,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
   void onZoomChanged(double value) {
     _value = value;
     controller.zoomByFactor(value);
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -70,14 +68,19 @@ class _CameraExampleHomeState extends State<CameraExampleHome> {
                   decoration: BoxDecoration(
                     color: Colors.black,
                     border: Border.all(
-                      color: controller != null && controller.value.isRecordingVideo
+                      color: controller != null &&
+                              controller.value.isRecordingVideo
                           ? Colors.redAccent
                           : Colors.grey,
                       width: 3.0,
                     ),
                   ),
                 ),
-                Slider(value: _value, onChanged: onZoomChanged, min: 1.0, max: 5.0)
+                Slider(
+                    value: _value,
+                    onChanged: onZoomChanged,
+                    min: 0.0,
+                    max: 20.0)
               ],
             ),
           ),
