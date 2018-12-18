@@ -53,6 +53,18 @@ Future<List<CameraDescription>> availableCameras() async {
   }
 }
 
+/// Completes with current active camera.
+///
+/// May throw a [CameraException].
+Future<String> activeCamera() async {
+  try {
+    final String camera = await _channel.invokeMethod('activeCamera');
+    return camera;
+  } on PlatformException catch (e) {
+    throw CameraException(e.code, e.message);
+  }
+}
+
 class CameraDescription {
   CameraDescription({this.name, this.lensDirection});
 

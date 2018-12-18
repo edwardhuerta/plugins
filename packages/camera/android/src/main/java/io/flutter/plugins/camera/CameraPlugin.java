@@ -106,7 +106,7 @@ public class CameraPlugin implements MethodCallHandler {
                         if (activity == CameraPlugin.this.activity) {
                             if (camera != null) {
                                 camera.open(null);
-                                startBackgroundThread();
+//                                startBackgroundThread();
                             }
                         }
                     }
@@ -116,7 +116,7 @@ public class CameraPlugin implements MethodCallHandler {
                         if (activity == CameraPlugin.this.activity) {
                             if (camera != null) {
                                 camera.close();
-                                stopBackgroundThread();
+//                                stopBackgroundThread();
 
                             }
                         }
@@ -188,6 +188,10 @@ public class CameraPlugin implements MethodCallHandler {
                 } catch (CameraAccessException e) {
                     result.error("cameraAccess", e.getMessage(), null);
                 }
+                break;
+            case "activeCamera":
+                String currentCamera =  camera.cameraName;
+                result.success(currentCamera);
                 break;
             case "initialize": {
                 String cameraName = call.argument("cameraName");
@@ -632,6 +636,7 @@ public class CameraPlugin implements MethodCallHandler {
                         CaptureRequest.JPEG_ORIENTATION, (-displayOrientation + sensorOrientation) % 360);
                 captureBuilder.set(CaptureRequest.SCALER_CROP_REGION, zoomRect);
                 setAutoFlash(captureBuilder, flashType);
+                Log.d("cameraID", camera.cameraName);
 
                 cameraCaptureSession.capture(
                         captureBuilder.build(), captureCallbackListener, null);
@@ -771,7 +776,7 @@ public class CameraPlugin implements MethodCallHandler {
             if (zoomRect != null) {
                 try {
                     captureRequestBuilder.set(CaptureRequest.SCALER_CROP_REGION, zoomRect);
-                    cameraCaptureSession.setRepeatingRequest(captureRequestBuilder.build(), captureCallbackListener, mBackgroundHandler);
+                    cameraCaptureSession.setRepeatingRequest(captureRequestBuilder.build(), captureCallbackListener, null);
                     Log.d("Zooming", "Max: " + getMaxZoom());
                 } catch (Exception e) {
                     Log.e(TAG, "Error updating preview: ", e);
